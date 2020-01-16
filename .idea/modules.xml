@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/clWallApi.iml" filepath="$PROJECT_DIR$/.idea/clWallApi.iml" />
+    </modules>
+  </component>
+</project>
