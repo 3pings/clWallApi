@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/3pings/clWallApi/config"
 	"net/http"
-	"os"
 )
 
 type Services struct {
@@ -48,8 +47,6 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	//Set Variables
 	var ss []Services
 	var s Services
-	s.AppSpecs.AppVersion = "1"
-	s.AppSpecs.AppVersion = os.Getenv("Hostname")
 
 	//Get Event Data
 	event, err := db.Query("select name, start_date, venue_name, venue_address, venue_city, event_url, logo_url from events")
@@ -62,6 +59,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
+	event.Close()
 
 	//Get Weather Data
 	weather, err := db.Query("select description, icon, temp, temp_min, temp_max, humidity, city from weather order by timestamp DESC")
@@ -69,10 +67,12 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	weather.Next()
+
 	err = weather.Scan(&s.Weather.Description, &s.Weather.Icon, &s.Weather.Temp, &s.Weather.TempMin, &s.Weather.TempMax, &s.Weather.Humidity, &s.Weather.City)
 	if err != nil {
 		panic(err.Error())
 	}
+	weather.Close()
 
 	//Get Incident Data
 	incident, err := db.Query("select severity, coordinates, description from incidents")
@@ -80,14 +80,14 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	incident.Next()
+
 	err = incident.Scan(&s.Incident.Severity, &s.Incident.Coordinates, &s.Incident.Description)
 	if err != nil {
 		panic(err.Error())
 	}
-
+	incident.Close()
 	ss = append(ss, s)
 
 	json.NewEncoder(w).Encode(ss[0])
-	defer db.Close()
 
 }
