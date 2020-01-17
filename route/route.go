@@ -33,7 +33,7 @@ type Services struct {
 	} `json:"incident"`
 	AppSpecs struct {
 		AppVersion      string `json:"app_version"`
-		ServingHostname string `json:"service_hostname"`
+		ServingHostname string `json:"serving_hostname"`
 	} `json:"appspecs"`
 }
 
