@@ -1,7 +1,6 @@
 package route
 
 import (
-	"database/sql"
 	"encoding/json"
 	"github.com/3pings/clWallApi/config"
 	"net/http"
