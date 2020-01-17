@@ -2,13 +2,14 @@ package config
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"os"
 )
 
 var DB *sql.DB
 
-func DBConn() (db *sql.DB) {
+func init() {
 	dbName := os.Getenv("dbName")
 	dbPass := os.Getenv("dbPass")
 	dbHost := os.Getenv("dbHost")
@@ -16,9 +17,10 @@ func DBConn() (db *sql.DB) {
 
 	var err error
 	dsn := dbUser + ":" + dbPass + "@tcp(" + dbHost + ":3306)/" + dbName
-	db, err = sql.Open("mysql", dsn)
+	DB, err = sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err.Error())
+	}else{
+		fmt.Println("Connected to ", dbHost)
 	}
-	return db
 }

@@ -39,9 +39,6 @@ type Services struct {
 
 func GetServices(w http.ResponseWriter, r *http.Request) {
 
-	//Connect to DB
-	db := config.DBConn()
-
 	//Set Header Info
 	w.Header().Set("Content-Type", "application/json")
 
@@ -52,7 +49,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	appVer := "1.0"
 
 	//Get Event Data
-	event, err := db.Query("select name, start_date, venue_name, venue_address, venue_city, event_url, logo_url from events")
+	event, err := config.DB.Query("select name, start_date, venue_name, venue_address, venue_city, event_url, logo_url from events")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -65,7 +62,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	event.Close()
 
 	//Get Weather Data
-	weather, err := db.Query("select description, icon, temp, temp_min, temp_max, humidity, city from weather order by timestamp DESC")
+	weather, err := config.DB.Query("select description, icon, temp, temp_min, temp_max, humidity, city from weather order by timestamp DESC")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -78,7 +75,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	weather.Close()
 
 	//Get Incident Data
-	incident, err := db.Query("select severity, coordinates, description from incidents")
+	incident, err := config.DB.Query("select severity, coordinates, description from incidents")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -94,7 +91,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	s.AppSpecs.AppVersion = appVer
 
 	ss = append(ss, s)
-	defer db.Close()
+	//defer db.Close()
 
 	json.NewEncoder(w).Encode(ss[0])
 
