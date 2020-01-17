@@ -1,10 +1,11 @@
 package route
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/3pings/clWallApi/config"
 	"net/http"
+	"os"
 )
 
 type Services struct {
@@ -31,9 +32,16 @@ type Services struct {
 		Coordinates string `json:"coordinates"`
 		Description string `json:"description"`
 	} `json:"incident"`
+	AppSpecs struct {
+		AppVersion      string `json:"app_version"`
+		ServingHostname string `json:"service_hostname"`
+	} `json:"appspecs"`
 }
 
 func GetServices(w http.ResponseWriter, r *http.Request) {
+
+	//Connect to DB
+	db := config.DBConn()
 
 	//Set Header Info
 	w.Header().Set("Content-Type", "application/json")
@@ -41,9 +49,11 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	//Set Variables
 	var ss []Services
 	var s Services
+	s.AppSpecs.AppVersion = "1"
+	s.AppSpecs.AppVersion = os.Getenv("Hostname")
 
 	//Get Event Data
-	event, err := config.DB.Query("select name, start_date, venue_name, venue_address, venue_city, event_url, logo_url from events")
+	event, err := db.Query("select name, start_date, venue_name, venue_address, venue_city, event_url, logo_url from events")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -55,7 +65,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Get Weather Data
-	weather, err := config.DB.Query("select description, icon, temp, temp_min, temp_max, humidity, city from weather order by timestamp DESC")
+	weather, err := db.Query("select description, icon, temp, temp_min, temp_max, humidity, city from weather order by timestamp DESC")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -66,7 +76,7 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Get Incident Data
-	incident, err := config.DB.Query("select severity, coordinates, description from incidents")
+	incident, err := db.Query("select severity, coordinates, description from incidents")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -75,10 +85,10 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
+
 	ss = append(ss, s)
 
-	defer config.DB.Close()
-
 	json.NewEncoder(w).Encode(ss[0])
+	defer db.Close()
 
 }
