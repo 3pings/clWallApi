@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/3pings/clWallApi/config"
 	"net/http"
+	"os"
 )
 
 type Services struct {
@@ -47,6 +48,8 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	//Set Variables
 	var ss []Services
 	var s Services
+	hn, _ := os.Hostname()
+	appVer := "1.0"
 
 	//Get Event Data
 	event, err := db.Query("select name, start_date, venue_name, venue_address, venue_city, event_url, logo_url from events")
@@ -86,7 +89,12 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	incident.Close()
+
+	s.AppSpecs.ServingHostname = hn
+	s.AppSpecs.AppVersion = appVer
+
 	ss = append(ss, s)
+	defer db.Close()
 
 	json.NewEncoder(w).Encode(ss[0])
 
