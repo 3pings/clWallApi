@@ -77,8 +77,8 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 	}
 	ss = append(ss, s)
 
-	fmt.Println(ss)
+	defer config.DB.Close()
 
-	json.NewEncoder(w).Encode(ss)
+	json.NewEncoder(w).Encode(ss[0])
 
 }
